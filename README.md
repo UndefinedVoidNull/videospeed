@@ -1,3 +1,5 @@
+![options](./README.assets/options.png)
+
 # The science of accelerated playback
 
 **TL;DR: faster playback translates to better engagement and retention.**

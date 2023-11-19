@@ -58,6 +58,7 @@ function log(message, level) {
   }
 }
 
+// get settings from option page?
 chrome.storage.sync.get(tc.settings, function (storage) {
   tc.settings.keyBindings = storage.keyBindings; // Array
   if (storage.keyBindings.length == 0) {
@@ -605,6 +606,11 @@ function initializeNow(document) {
         }
 
         var item = tc.settings.keyBindings.find((item) => item.key === keyCode);
+        // TODO: disable default number key binding (esp for youtube)
+        if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].includes(event.key)) {
+          event.stopImmediatePropagation()
+        }
+
         if (item) {
           runAction(item.action, item.value);
           if (item.force === "true") {
@@ -615,6 +621,17 @@ function initializeNow(document) {
         }
 
         return false;
+      },
+      true
+    );
+    // TODO: KEYUP EVENT
+    doc.addEventListener(
+      "keyup",
+      function (event) {
+        if (event.key === '`') {
+          console.log("key up!")
+          runAction("realReset")
+        }
       },
       true
     );
@@ -783,7 +800,10 @@ function runAction(action, value, e) {
         // https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_media_element.h;l=116;drc=70155ab40e50115ac8cff6e8f4b7703a7784d854
         var s = Math.max(v.playbackRate - value, 0.07);
         setSpeed(v, s);
-      } else if (action === "reset") {
+      } else if (action === 'realReset') {
+        setSpeed(v, 1.0)
+      }
+      else if (action === "reset") {
         log("Reset speed", 5);
         resetSpeed(v, 1.0);
       } else if (action === "display") {
@@ -843,11 +863,11 @@ function resetSpeed(v, target) {
         setSpeed(v, 1.0);
       } else {
         log('Toggling playback speed to "fast" speed', 4);
-        setSpeed(v, getKeyBindings("fast"));
+        // setSpeed(v, getKeyBindings("fast"));
       }
     } else {
       log('Toggling playback speed to "reset" speed', 4);
-      setSpeed(v, getKeyBindings("reset"));
+      // setSpeed(v, getKeyBindings("reset"));
     }
   } else {
     log('Toggling playback speed to "reset" speed', 4);
